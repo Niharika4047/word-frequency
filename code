@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_LENGTH 1000
+#define MAX_WORDS 1000
+#define MAX_WORD_LENGTH 100
+
+// Structure to hold word and its frequency
+typedef struct {
+    char word[MAX_WORD_LENGTH];
+    int frequency;
+} WordFrequency;
+
+// Function to convert a word to lowercase
+void toLowerCase(char *str) {
+    for (int i = 0; str[i]; i++) {
+        str[i] = tolower(str[i]);
+    }
+}
+
+// Function to check if a word is already in the array
+int findWordIndex(WordFrequency words[], int count, const char *word) {
+    for (int i = 0; i < count; i++) {
+        if (strcmp(words[i].word, word) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Function to count the frequency of each word in the paragraph
+void countWordFrequency(char *paragraph, WordFrequency words[], int *wordCount) {
+    char *token;
+    const char delimiters[] = " \t\n,.;?!";
+    token = strtok(paragraph, delimiters);
+
+    while (token != NULL) {
+        toLowerCase(token);
+        int index = findWordIndex(words, *wordCount, token);
+        if (index == -1) {
+            // New word, add it to the list
+            strcpy(words[*wordCount].word, token);
+            words[*wordCount].frequency = 1;
+            (*wordCount)++;
+        } else {
+            // Existing word, increment the frequency
+            words[index].frequency++;
+        }
+        token = strtok(NULL, delimiters);
+    }
+}
+
+int main() {
+    char paragraph[MAX_LENGTH];
+    WordFrequency words[MAX_WORDS];
+    int wordCount = 0;
+
+    printf("Enter your paragraph:\n");
+    fgets(paragraph, MAX_LENGTH, stdin);
+
+    // Remove the trailing newline character if present
+    size_t len = strlen(paragraph);
+    if (len > 0 && paragraph[len - 1] == '\n') {
+        paragraph[len - 1] = '\0';
+    }
+
+    countWordFrequency(paragraph, words, &wordCount);
+
+    printf("Word frequencies:\n");
+    for (int i = 0; i < wordCount; i++) {
+        printf("%s: %d\n", words[i].word, words[i].frequency);
+    }
+
+    return 0;
+}
